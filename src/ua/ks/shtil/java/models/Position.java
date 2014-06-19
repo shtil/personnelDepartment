@@ -1,4 +1,4 @@
-package ua.ks.shtil.java;
+package ua.ks.shtil.java.models;
 
 import java.math.BigDecimal;
 
@@ -10,6 +10,15 @@ public class Position {
     private String name;
     private BigDecimal minSalary;
     private BigDecimal maxSalary;
+    private int department;
+
+    public int getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(int department) {
+        this.department = department;
+    }
 
     public int getId() {
         return id;
@@ -53,5 +62,20 @@ public class Position {
         this.name = name;
         this.minSalary = minSalary;
         this.maxSalary = maxSalary;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "Position{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", minSalary=" + minSalary +
+                ", maxSalary=" + maxSalary +
+                ", department=" + department +
+                '}';
     }
 }
