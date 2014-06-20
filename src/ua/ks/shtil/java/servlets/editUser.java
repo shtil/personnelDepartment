@@ -87,6 +87,7 @@ public class editUser extends HttpServlet {
             e.printStackTrace();
         }
 
-        doGet(req, resp);
+      //  doGet(req, resp);
+        req.getRequestDispatcher("index").forward(req, resp);
     }
 }
