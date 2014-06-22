@@ -1,15 +1,12 @@
-<%@ page import="ua.ks.shtil.java.models.Department" %>
 <%@ page import="java.util.List" %>
-<%@ page import="ua.ks.shtil.java.models.Employee" %>
-
-
+<%@ page import="ua.ks.shtil.java.models.Department" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <title>Departments</title>
     <link rel="stylesheet" type="text/css" HREF="<%=request.getContextPath()%>/style/style.css"/>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
 
@@ -24,11 +21,11 @@
         <div class="center_left">
             <div class="title_welcome">Personnel department</div>
 
-
-            <% List<Employee> employeeList = (List<Employee>) request.getAttribute("employees");
+            <%
                 List<Department> departments = (List<Department>) request.getAttribute("departments");
-                Department department = (Department) request.getAttribute("department");
+                String warning = (String) request.getAttribute("warning");
             %>
+
 
             <div id="content">
                 <div id="left">
@@ -38,7 +35,8 @@
 
                     <ul>
                         <% for (Department dep : departments) {%>
-                        <li><a href="index?dep=<%=dep.getId()%>"><%=dep.getName()%> </a></li>
+                        <li><a href="index?dep=<%=dep.getId()%>"><%=dep.getName()%>
+                        </a></li>
                         <%}%>
                     </ul>
 
@@ -53,30 +51,27 @@
                     </div>
                 </div>
                 <div id="right">
-
-                    <% if (employeeList == null) {%>
-                    <div class="title">Please select the department</div>
+                    <div class="title">Add new position</div>
                     <br/>
-                    <% } else { %>
-                    <div class="title">Users of <%=department.getName()%>
-                    </div>
-                    <br/>
-
-                    <% for (Employee employee : employeeList) {%>
-                    <div style=" display: table; margin: 0 auto; width: 390px; padding-bottom: 5px;">
-                    <div style=" float:left;"><%=employee.getName()%>
-                    </div>
-                        <div style="float: right;"><a class="btn" onclick="return confirm('Are you sure you want to delete this item?');"
-                                                      href="removeEmployee?id=<%=employee.getId()%>&dep=<%=employee.getDepartment()%>">Delete</a>
-                        </div>
-                        <div style="float: right; margin-right: 5px;"><a class="btn"
-                                                                         href="editUser?id=<%=employee.getId()%>">Edit</a>
-                        </div>
-                    </div>
+                    <% if  (warning!=null){%>
+                    <div class="err"><%=warning%></div>
                     <%}%>
 
+                    <form action="addPosition" method="POST" accept-charset="UTF-8">
+                        Name: <input type="text" name="name" ><br/>
+                        Department:
+                        <select name="department">
+                            <% for (Department department : departments) {%>
+                            <option  value="<%=department.getId()%>"><%=department.getName()%>
+                            </option>
+                            <%}%>
+                        </select>
+                        <br/>
+                        Minimal salary: <input type="text" name="minSalary" ><br/>
+                        Maximum salary: <input type="text" name="maxSalary" ><br/>
 
-                    <%}%>
+                        <input type="submit" value="Save"/>
+                    </form>
 
                 </div>
             </div>
@@ -94,7 +89,3 @@
 <!-- end of main_container -->
 </body>
 </html>
-
-
-
-

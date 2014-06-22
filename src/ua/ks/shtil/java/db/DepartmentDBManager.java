@@ -74,7 +74,10 @@ public class DepartmentDBManager {
     }
 
     private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://localhost/personnel_department", "root", "shtil27101988");
+       // return DriverManager.getConnection("jdbc:mysql://localhost/personnel_department", "root", "shtil27101988");
+        //DriverManager.getConnection("jdbc:mysql:///dbname?useUnicode=true&characterEncoding=utf-8", "user", "pass");
+
+        return  DriverManager.getConnection("jdbc:mysql://localhost/personnel_department?useUnicode=true&characterEncoding=UTF-8", "shtil", "shtil27101988");
     }
 
 
@@ -93,7 +96,7 @@ public class DepartmentDBManager {
                 position.setName(resultSet.getString("name"));
                 position.setMinSalary(resultSet.getBigDecimal("minSalary"));
                 position.setMaxSalary(resultSet.getBigDecimal("minSalary"));
-                position.setDepartment(resultSet.getInt("department_id"));
+                position.setDepartment(resultSet.getInt("department"));
                 positions.add(position);
                 }
         }
@@ -157,6 +160,20 @@ public class DepartmentDBManager {
             stmt.setInt(4, employee.getDepartment());
             stmt.setInt(5, employee.getPosition());
             stmt.setBigDecimal(6, employee.getSalary());
+
+            stmt.execute();
+        }
+    }
+
+    public void saveNewPosition(Position position) throws  SQLException{
+
+        try (Connection c = getConnection();
+             PreparedStatement stmt = c.prepareStatement( "INSERT INTO position (name,department,minSalary,maxSalary ) VALUES (?,?,?,?)");
+        ) {
+            stmt.setString(1,position.getName());
+            stmt.setInt(2, position.getDepartment());
+            stmt.setBigDecimal(3, position.getMinSalary());
+            stmt.setBigDecimal(4, position.getMaxSalary());
 
             stmt.execute();
         }
@@ -227,6 +244,17 @@ public class DepartmentDBManager {
         return employee;
     }
 
+    public void removeEmployee(int id)  throws SQLException{
+
+        String sql = "DELETE FROM employee WHERE id = ?";
+        try (Connection c = getConnection();
+             PreparedStatement stmt = c.prepareStatement(sql);
+        ) {
+            stmt.setInt(1, id);
+            stmt.execute();
+        }
+    }
+
 
 
 
@@ -247,4 +275,7 @@ public class DepartmentDBManager {
             // don't throw now as it might leave following closables in undefined state
         }
     }
+
+
+
 }

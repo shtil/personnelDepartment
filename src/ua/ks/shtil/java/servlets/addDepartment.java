@@ -20,11 +20,11 @@ public class addDepartment extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        main(req, resp);
+        mainForward(req, resp);
 
     }
 
-    private void main(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    private void mainForward(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<Department> departments = new ArrayList<>();
 
         DepartmentDBManager departmentDBManager = new DepartmentDBManager();
@@ -42,9 +42,9 @@ public class addDepartment extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+        String departmentName = req.getParameter("name").trim();
 
-        String departmentName = req.getParameter("name");
-        if (departmentName != null) {
+        if (!departmentName.equals("")) {
 
             DepartmentDBManager departmentDBManager = new DepartmentDBManager();
             try {
@@ -52,10 +52,20 @@ public class addDepartment extends HttpServlet {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            ;
+            mainForward(req, resp);
+        } else {
+            warningForward(req, resp);
         }
-        main(req, resp);
 
 
+
+    }
+
+    private void warningForward(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        String warning = "Please write correct department!";
+        req.setAttribute("warning", warning);
+
+        mainForward(req, resp);
     }
 }

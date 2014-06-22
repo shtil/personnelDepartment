@@ -39,10 +39,62 @@
         <url-pattern>/addUser</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>addPosition</servlet-name>
+        <servlet-class>ua.ks.shtil.java.servlets.addPosition</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>addPosition</servlet-name>
+        <url-pattern>/addPosition</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>deleteUser</servlet-name>
+        <servlet-class>ua.ks.shtil.java.servlets.deleteUser</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>deleteUser</servlet-name>
+        <url-pattern>/removeEmployee</url-pattern>
+    </servlet-mapping>
+
     <welcome-file-list>
         <welcome-file>index</welcome-file>
     </welcome-file-list>
 
+
+
+    <filter>
+        <filter-name>FormEncodingFilter</filter-name>
+        <filter-class>ua.ks.shtil.java.filters.FormEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>FormEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <security-constraint>
+        <display-name>Restrict access to JSP pages</display-name>
+        <web-resource-collection>
+            <web-resource-name>
+                Restrict access to JSP pages
+            </web-resource-name>
+            <url-pattern>*.jsp</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <description>
+                With no roles defined, no access granted
+            </description>
+        </auth-constraint>
+    </security-constraint>
+
+    <error-page>
+        <error-code>404</error-code>
+        <location>/error.jsp</location>
+    </error-page>
 
     <resource-ref>
         <description>DB Connection</description>

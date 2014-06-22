@@ -23,10 +23,13 @@ public class editUser extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        String depParam = req.getParameter("id");
-        System.out.println("id = " + depParam);
-        int userId = Integer.parseInt(depParam);
+        int userId =0;
 
+        try {
+             userId = Integer.parseInt(req.getParameter("id"));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
         Employee employee = new Employee();
         List<Department> departments = new ArrayList<>();
         DepartmentDBManager departmentDBManager = new DepartmentDBManager();
@@ -43,8 +46,6 @@ public class editUser extends HttpServlet {
             e.printStackTrace();
         }
 
-        System.out.println(employee.toString());
-
         req.setAttribute("employee", employee);
         req.setAttribute("departments", departments);
         req.getRequestDispatcher("editUser.jsp").forward(req, resp);
@@ -53,23 +54,66 @@ public class editUser extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        int id = Integer.parseInt(req.getParameter("id"));
-        String name = req.getParameter("name");
-        String birthday = req.getParameter("birthday");
-        String passportNumber = req.getParameter("passportNumber");
-        String reqDepId = req.getParameter("department");
-        int department = Integer.parseInt(reqDepId);
-        BigDecimal salary = new BigDecimal(req.getParameter("salary"));
+        int id = 0;
+        try {
+            id = Integer.parseInt(req.getParameter("id"));
+        }catch (NumberFormatException e){
+            e.printStackTrace();
+        }
+
+        String name ="";
+        String birthday = "";
+        String passportNumber = "";
+        int department = 0;
+        int position = 0;
+        BigDecimal salary = null;
+
+        if (req.getParameter("name")!=null) {
+            name = req.getParameter("name").trim();
+        }
+
+        if (req.getParameter("birthday")!= null) {
+            birthday = req.getParameter("birthday").trim();
+        }
+        if (req.getParameter("passportNumber")!=null) {
+            passportNumber = req.getParameter("passportNumber").trim();
+        }
+        if (req.getParameter("department")!=null) {
+            try {
+                department = Integer.parseInt(req.getParameter("department"));
+            }catch (NumberFormatException e){
+                e.printStackTrace();
+            }
+        }
+        if (req.getParameter("position")!=null) {
+            try {
+                position = Integer.parseInt(req.getParameter("position"));
+            } catch (NumberFormatException e){
+                e.printStackTrace();
+            }
+        }
+        if (req.getParameter("salary")!=null) {
+            try {
+                salary = new BigDecimal(req.getParameter("salary"));
+            } catch ( NumberFormatException e){
+                e.printStackTrace();
+            }
+        }
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         Date date = null;
         try {
             date = formatter.parse(req.getParameter("birthday"));
-            System.out.println(date);
-            System.out.println(formatter.format(date));
-
         } catch (ParseException e) {
             e.printStackTrace();
+        }
+
+        if (id ==0 || name.equals("") || date ==null || passportNumber.equals("") || department==0 || position == 0 || salary == null){
+
+            String warning = "Please write correct data";
+            req.setAttribute("warning", warning);
+            doGet(req,resp);
+            return;
         }
 
         Employee employee = new Employee();
@@ -87,7 +131,8 @@ public class editUser extends HttpServlet {
             e.printStackTrace();
         }
 
-      //  doGet(req, resp);
-        req.getRequestDispatcher("index").forward(req, resp);
+        String url = "index?dep=" + employee.getDepartment();
+
+        req.getRequestDispatcher(url).forward(req, resp);
     }
 }
