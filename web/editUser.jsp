@@ -1,6 +1,7 @@
 <%@ page import="ua.ks.shtil.java.models.Employee" %>
 <%@ page import="ua.ks.shtil.java.models.Department" %>
 <%@ page import="java.util.List" %>
+<%@ page import="ua.ks.shtil.java.models.Position" %>
 
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -28,8 +29,69 @@
             <%
                 Employee employee = (Employee) request.getAttribute("employee");
                 List<Department> departments = (List<Department>) request.getAttribute("departments");
+                List<Position> positions = (List<Position>) request.getAttribute("positions");
                 String warning = (String) request.getAttribute("warning");
             %>
+
+
+            <script type="text/javascript">
+                <!--
+
+                var aPositionValues = new Array();
+                var aDepartmentValues = new Array();
+
+                <% for (Position pos : positions){%>
+                aPositionValues.push([<%=pos.getDepartment()%>,<%=pos.getId()%>,"<%=pos.getName()%>", <%=pos.getMinSalary()%>, <%=pos.getMaxSalary()%>]);
+                <%}%>
+
+                <% for (Department dep : departments){%>
+                aDepartmentValues.push(<%=dep.getId()%>);
+                <%}%>
+
+                function getId(index){
+                    return aDepartmentValues[index];
+                }
+
+                function getPositionsValuesById(index){
+                    var array = new Array();
+                    for (i= 0; i< aPositionValues.length; i++){
+                        if ( aPositionValues[i][0] == index){
+                            array.push(aPositionValues[i]);
+                        }
+                    }
+                    return array;
+                }
+
+                function MkHouseValues(index){
+                    var id = getId(index);
+                    var aCurrPositionValues = getPositionsValuesById(id);
+                    var nCurrPositionValuesCnt = aCurrPositionValues.length;
+                    var oPositionList = document.forms["employee"].elements["position"];
+                    var oHouseListOptionsCnt = oPositionList.options.length;
+                    oPositionList.length = 0;
+                    for (i = 0; i < nCurrPositionValuesCnt; i++){
+                        if (document.createElement){
+                            var newHouseListOption = document.createElement("OPTION");
+                            newHouseListOption.text = aCurrPositionValues[i][2];
+                            newHouseListOption.value = aCurrPositionValues[i][1];
+                            (oPositionList.options.add) ? oPositionList.options.add(newHouseListOption) : oPositionList.add(newHouseListOption, null);
+                        }else{
+                            oPositionList.options[i] = new Option(aCurrPositionValues[i][2], aCurrPositionValues[i][1], false, false);
+                        }
+                    }
+                }
+
+                MkHouseValues(document.forms["employee"].elements["department"].selectedIndex);
+
+
+                function change(index) {
+
+                    var position = aPositionValues[index];
+
+                    document.getElementById('validSalary').innerHTML = "* Min salary "+aPositionValues[index][3] + "<br/>Max salary "+ aPositionValues[index][4];
+                }
+                //-->
+            </script>
 
 
             <div id="content">
@@ -62,23 +124,24 @@
                     <div class="err"><%=warning%></div>
                     <%}%>
 
-                    <form action="editUser" method="POST" accept-charset="UTF-8">
+                    <form name="employee" action="editUser" method="POST" accept-charset="UTF-8">
                         <input type="hidden" name="id" value="<%=employee.getId()%>"><br/>
-                        User Name: <input type="text" name="name" value="<%=employee.getName()%>"><br/>
-                        User Birthday: <input type="date" name="birthday" value="<%=employee.getBirthday()%>"><br/>
-                        User Passport number: <input type="text" name="passportNumber" value="<%=employee.getPassportNumber()%>"><br/>
-                        User Department:
-                        <select name="department">
+                         Name: <strong><%=employee.getName()%></strong><br/>
+                        Department:
+                        <select name="department" onChange="MkHouseValues(this.selectedIndex)">
                             <% for (Department department : departments) {%>
-                            <option <% if (department.getId() == employee.getDepartment()) {
-                            %> selected <%}%>
-                               value="<%=department.getId()%>"><%=department.getName()%>
+                            <option  value="<%=department.getId()%>"><%=department.getName()%>
                             </option>
                             <%}%>
                         </select>
                         <br/>
-                        Salary: <input type="text" name="salary" value="<%=employee.getSalary()%>"><br/>
-
+                        Position:
+                        <select name="position" onClick="change(this.selectedIndex)">
+                            <option value="N/A">N/A</option>
+                        </select>
+                        <br/>
+                        Salary: <input type="text" name="salary" value=""><br/>
+                        <div id="validSalary"></div>
                         <input type="submit" value="Save"/>
 
                     </form>

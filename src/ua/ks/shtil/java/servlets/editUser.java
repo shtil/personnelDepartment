@@ -3,11 +3,13 @@ package ua.ks.shtil.java.servlets;
 import ua.ks.shtil.java.db.DepartmentDBManager;
 import ua.ks.shtil.java.models.Department;
 import ua.ks.shtil.java.models.Employee;
+import ua.ks.shtil.java.models.Position;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.*;
@@ -15,6 +17,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by shtil on 18.06.14.
@@ -32,6 +35,7 @@ public class editUser extends HttpServlet {
         }
         Employee employee = new Employee();
         List<Department> departments = new ArrayList<>();
+        List<Position> positions = new ArrayList<>();
         DepartmentDBManager departmentDBManager = new DepartmentDBManager();
 
         try {
@@ -46,8 +50,15 @@ public class editUser extends HttpServlet {
             e.printStackTrace();
         }
 
+        try {
+            positions = departmentDBManager.getAllPositions();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         req.setAttribute("employee", employee);
         req.setAttribute("departments", departments);
+        req.setAttribute("positions", positions);
         req.getRequestDispatcher("editUser.jsp").forward(req, resp);
     }
 
@@ -62,8 +73,8 @@ public class editUser extends HttpServlet {
         }
 
         String name ="";
-        String birthday = "";
-        String passportNumber = "";
+
+
         int department = 0;
         int position = 0;
         BigDecimal salary = null;
@@ -72,12 +83,7 @@ public class editUser extends HttpServlet {
             name = req.getParameter("name").trim();
         }
 
-        if (req.getParameter("birthday")!= null) {
-            birthday = req.getParameter("birthday").trim();
-        }
-        if (req.getParameter("passportNumber")!=null) {
-            passportNumber = req.getParameter("passportNumber").trim();
-        }
+
         if (req.getParameter("department")!=null) {
             try {
                 department = Integer.parseInt(req.getParameter("department"));
@@ -100,15 +106,8 @@ public class editUser extends HttpServlet {
             }
         }
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = null;
-        try {
-            date = formatter.parse(req.getParameter("birthday"));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
 
-        if (id ==0 || name.equals("") || date ==null || passportNumber.equals("") || department==0 || position == 0 || salary == null){
+        if (id ==0 || name.equals("") || department==0 || position == 0 || salary == null){
 
             String warning = "Please write correct data";
             req.setAttribute("warning", warning);
@@ -119,9 +118,8 @@ public class editUser extends HttpServlet {
         Employee employee = new Employee();
         employee.setId(id);
         employee.setName(name);
-        employee.setBirthday(date);
-        employee.setPassportNumber(passportNumber);
         employee.setDepartment(department);
+        employee.setPosition(position);
         employee.setSalary(salary);
 
         DepartmentDBManager departmentDBManager = new DepartmentDBManager();

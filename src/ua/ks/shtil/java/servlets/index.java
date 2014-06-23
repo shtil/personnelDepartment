@@ -17,22 +17,22 @@ import java.util.List;
  * Created by shtil on 14.06.14.
  */
 
-public class Index extends HttpServlet {
+public class index extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        if (request.getParameterMap().containsKey("dep")){
-            showSelectedDepartment(request, response);
+        if (req.getParameterMap().containsKey("dep")){
+            showSelectedDepartment(req, resp);
         } else {
-            showDefaultPage(request, response);
+            showDefaultPage(req, resp);
         }
 
 
 
     }
 
-    private void showDefaultPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void showDefaultPage(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 
         List<Department> departments = new ArrayList<>();
@@ -47,14 +47,14 @@ public class Index extends HttpServlet {
             e.printStackTrace();
         }
 
-        request.setAttribute("department", department);
-        request.setAttribute("departments", departments);
-        request.getRequestDispatcher("index.jsp").forward(request, response);
+        req.setAttribute("department", department);
+        req.setAttribute("departments", departments);
+        req.getRequestDispatcher("index.jsp").forward(req, resp);
     }
 
 
-    private void showSelectedDepartment(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String depParam = request.getParameter("dep");
+    private void showSelectedDepartment(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String depParam = req.getParameter("dep");
 
         int departmentId = Integer.parseInt(depParam);
 
@@ -81,10 +81,10 @@ public class Index extends HttpServlet {
             e.printStackTrace();
         }
 
-        request.setAttribute("department", department);
-        request.setAttribute("employees", employees);
-        request.setAttribute("departments", departments);
-        request.getRequestDispatcher("index.jsp").forward(request, response);
+        req.setAttribute("department", department);
+        req.setAttribute("employees", employees);
+        req.setAttribute("departments", departments);
+        req.getRequestDispatcher("index.jsp").forward(req, resp);
     }
 
     @Override
