@@ -65,7 +65,7 @@ public class index extends HttpServlet {
         DepartmentDBManager departmentDBManager = new DepartmentDBManager();
 
         try {
-            employees = departmentDBManager.getAllEmployye(departmentId);
+            employees = departmentDBManager.getAllEmployee(departmentId);
         } catch (SQLException e) {
             e.printStackTrace();
         }

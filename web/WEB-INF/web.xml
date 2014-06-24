@@ -54,7 +54,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>deleteUser</servlet-name>
-        <url-pattern>/removeEmployee</url-pattern>
+        <url-pattern>/deleteUser</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

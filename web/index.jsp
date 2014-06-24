@@ -64,10 +64,11 @@
 
                     <% for (Employee employee : employeeList) {%>
                     <div style=" display: table; margin: 0 auto; width: 390px; padding-bottom: 5px;">
-                    <div style=" float:left;"><%=employee.getName()%>
+                    <div style=" float:left;"><strong><%=employee.getName()%></strong><br/>
+                        <%=employee.getPosition().getName()%>
                     </div>
                         <div style="float: right;"><a class="btn" onclick="return confirm('Are you sure you want to delete this item?');"
-                                                      href="removeEmployee?id=<%=employee.getId()%>&dep=<%=employee.getDepartment()%>">Delete</a>
+                                                      href="deleteUser?id=<%=employee.getId()%>&dep=<%=employee.getDepartment().getId()%>">Delete</a>
                         </div>
                         <div style="float: right; margin-right: 5px;"><a class="btn"
                                                                          href="editUser?id=<%=employee.getId()%>">Edit</a>

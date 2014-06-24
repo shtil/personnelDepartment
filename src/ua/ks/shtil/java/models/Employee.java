@@ -12,16 +12,8 @@ public class Employee {
     private String name;
     private Date birthday;
     private String passportNumber;
-    private int department;
-    private int position;
-
-    public int getPosition() {
-        return position;
-    }
-
-    public void setPosition(int position) {
-        this.position = position;
-    }
+    private Department department;
+    private Position position;
 
     private BigDecimal salary;
 
@@ -65,12 +57,20 @@ public class Employee {
         this.passportNumber = passportNumber;
     }
 
-    public int getDepartment() {
+    public Department getDepartment() {
         return department;
     }
 
-    public void setDepartment(int department) {
+    public void setDepartment(Department department) {
         this.department = department;
+    }
+
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
     }
 
     @Override
@@ -81,6 +81,7 @@ public class Employee {
                 ", birthday=" + birthday +
                 ", passportNumber='" + passportNumber + '\'' +
                 ", department=" + department +
+                ", position=" + position +
                 ", salary=" + salary +
                 '}';
     }

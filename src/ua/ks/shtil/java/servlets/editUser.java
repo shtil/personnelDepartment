@@ -72,16 +72,9 @@ public class editUser extends HttpServlet {
             e.printStackTrace();
         }
 
-        String name ="";
-
-
         int department = 0;
         int position = 0;
         BigDecimal salary = null;
-
-        if (req.getParameter("name")!=null) {
-            name = req.getParameter("name").trim();
-        }
 
 
         if (req.getParameter("department")!=null) {
@@ -107,29 +100,42 @@ public class editUser extends HttpServlet {
         }
 
 
-        if (id ==0 || name.equals("") || department==0 || position == 0 || salary == null){
+        if (id ==0 || department==0 || position == 0 || salary == null){
 
             String warning = "Please write correct data";
             req.setAttribute("warning", warning);
             doGet(req,resp);
             return;
         }
-
+        DepartmentDBManager departmentDBManager = new DepartmentDBManager();
+        Position mPosition = new Position();
+        Department mDepartment = new Department();
         Employee employee = new Employee();
         employee.setId(id);
-        employee.setName(name);
-        employee.setDepartment(department);
-        employee.setPosition(position);
+
+        try {
+            mDepartment = departmentDBManager.getDepartment(position);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            mPosition = departmentDBManager.getPosition(position);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        employee.setDepartment(mDepartment);
+        employee.setPosition(mPosition);
         employee.setSalary(salary);
 
-        DepartmentDBManager departmentDBManager = new DepartmentDBManager();
         try {
             departmentDBManager.updateUser(employee);
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        String url = "index?dep=" + employee.getDepartment();
+        String url = "index?dep=" + employee.getDepartment().getId();
 
         req.getRequestDispatcher(url).forward(req, resp);
     }

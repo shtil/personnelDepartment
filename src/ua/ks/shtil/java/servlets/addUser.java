@@ -109,10 +109,27 @@ public class addUser extends HttpServlet {
         employee.setName(name);
         employee.setBirthday(date);
         employee.setPassportNumber(passportNumber);
-        employee.setDepartment(department);
-        employee.setSalary(salary);
 
         DepartmentDBManager departmentDBManager = new DepartmentDBManager();
+
+        Department mDepartment = new Department();
+        Position mPosition = new Position();
+        try {
+            mDepartment = departmentDBManager.getDepartment(department);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            mPosition = departmentDBManager.getPosition(position);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        employee.setDepartment(mDepartment);
+        employee.setPosition(mPosition);
+        employee.setSalary(salary);
+
+
         try {
             departmentDBManager.saveNewUser(employee);
         } catch (SQLException e) {

@@ -9,9 +9,13 @@ import ua.ks.shtil.java.models.Employee;
 import ua.ks.shtil.java.models.Position;
 
 import java.io.Closeable;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import static java.sql.DriverManager.getConnection;
 
@@ -76,6 +80,26 @@ public class DepartmentDBManager {
     private Connection getConnection() throws SQLException {
        // return DriverManager.getConnection("jdbc:mysql://localhost/personnel_department", "root", "shtil27101988");
         //DriverManager.getConnection("jdbc:mysql:///dbname?useUnicode=true&characterEncoding=utf-8", "user", "pass");
+        Properties properties = new Properties();
+
+        String dbName = null;
+        String user = null;
+        String password = null;
+        try {
+           // properties.load(this.getClass().getClassLoader().getResourceAsStream("/WEB-INF/db.properties"));
+            InputStream inputStream = ClassLoader
+                    .getSystemResourceAsStream("/db.properties");
+
+            properties.load(inputStream);
+
+            dbName = properties.getProperty("dbname");
+            user = properties.getProperty("user");
+            password = properties.getProperty("password");
+
+            System.out.println( "property =" + dbName + " " + user + " "+ password);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return  DriverManager.getConnection("jdbc:mysql://localhost/personnel_department?useUnicode=true&characterEncoding=UTF-8", "shtil", "shtil27101988");
     }
@@ -125,7 +149,6 @@ public class DepartmentDBManager {
 
     public void saveNewDepartment(String name) throws SQLException {
 
-
         try (Connection c = getConnection();
              Statement st = c.createStatement()
         ) {
@@ -138,13 +161,12 @@ public class DepartmentDBManager {
 
     public void updateUser(Employee employee) throws SQLException {
         try (Connection c = getConnection();
-            PreparedStatement stmt = c.prepareStatement( "UPDATE employee SET name = (?), department_id = (?), position_id = (?), salary = (?)  WHERE  id= (?)");
+            PreparedStatement stmt = c.prepareStatement( "UPDATE employee SET department_id = (?), position_id = (?), salary = (?)  WHERE  id= (?)");
         ) {
-            stmt.setString(1,employee.getName());
-            stmt.setInt(2, employee.getDepartment());
-            stmt.setInt(3, employee.getPosition());
-            stmt.setBigDecimal(4, employee.getSalary());
-            stmt.setInt(5, employee.getId());
+            stmt.setInt(1, employee.getDepartment().getId());
+            stmt.setInt(2, employee.getPosition().getId());
+            stmt.setBigDecimal(3, employee.getSalary());
+            stmt.setInt(4, employee.getId());
 
             stmt.execute();
         }
@@ -156,8 +178,8 @@ public class DepartmentDBManager {
             stmt.setString(1,employee.getName());
             stmt.setDate(2, new Date(employee.getBirthday().getDate()));
             stmt.setString(3, employee.getPassportNumber());
-            stmt.setInt(4, employee.getDepartment());
-            stmt.setInt(5, employee.getPosition());
+            stmt.setInt(4, employee.getDepartment().getId());
+            stmt.setInt(5, employee.getPosition().getId());
             stmt.setBigDecimal(6, employee.getSalary());
 
             stmt.execute();
@@ -178,14 +200,14 @@ public class DepartmentDBManager {
         }
     }
 
-    public Department getDepartment(int departmentID) throws SQLException {
+    public Department getDepartment(int departmentId) throws SQLException {
 
         Department department = new Department();
         try (Connection c = getConnection();
              Statement st = c.createStatement()
         ) {
             ResultSet resultSet = st
-                    .executeQuery("SELECT * FROM department WHERE id =" + departmentID);
+                    .executeQuery("SELECT * FROM department WHERE id =" + departmentId);
 
             while (resultSet.next()) {
                 department.setId(resultSet.getInt("id"));
@@ -195,9 +217,28 @@ public class DepartmentDBManager {
         return department;
     }
 
+    public Position getPosition(int positionId) throws SQLException {
+
+        Position position = new Position();
+        try (Connection c = getConnection();
+             Statement st = c.createStatement()
+        ) {
+            ResultSet resultSet = st
+                    .executeQuery("SELECT * FROM position WHERE id =" + positionId);
+
+            while (resultSet.next()) {
+                position.setId(resultSet.getInt("id"));
+                position.setName(resultSet.getString("name"));
+                position.setMinSalary(resultSet.getBigDecimal("minSalary"));
+                position.setMaxSalary(resultSet.getBigDecimal("maxSalary"));
+            }
+        }
+        return position;
+    }
+
 
 /*
-    public List<Employee> getAllEmployye(int departmentID) throws SQLException {
+    public List<Employee> getAllEmployee(int departmentID) throws SQLException {
 
         List<Employee> employees = new ArrayList<>();
         try (Connection c = getConnection();
@@ -224,22 +265,19 @@ public class DepartmentDBManager {
 */
 
 
-    public List<Employee> getAllEmployye(int departmentID) throws SQLException {
+    public List<Employee> getAllEmployee(int departmentID) throws SQLException {
 
         List<Employee> employees = new ArrayList<>();
         try (Connection c = getConnection();
              Statement st = c.createStatement()
         ) {
             ResultSet resultSet = st
-                    .executeQuery("SELECT e.id, e.name, e.birthday, e.passportNumber, e.salary, d.id, d.name FROM (employee e, department d) WHERE (e.department_id=d.id AND e.department_id = 1);");
-                          //  "WHERE (employee.department_id = department.id AND department.id=1)");
-//            SELECT e.id, e.name, e.birthday, e.passportNumber, e.salary, d.id, d.name
-//            FROM `employee` e, `department` d
-//            WHERE e.department_id = d.id
+                    .executeQuery("SELECT e.id, e.name, e.birthday, e.passportNumber, e.salary,e.position_id, d.id, d.name, p.id, p.name, p.department, p.minSalary, p.maxSalary FROM employee e INNER JOIN department d ON e.department_id=d.id INNER JOIN position p ON e.position_id=p.id WHERE e.department_id =" +departmentID);
 
             while (resultSet.next()) {
                 Employee employee = new Employee();
                 Department department = new Department();
+                Position position = new Position();
 
                 employee.setId(resultSet.getInt("e.id"));
                 employee.setName(resultSet.getString("e.name"));
@@ -248,14 +286,21 @@ public class DepartmentDBManager {
 
                 department.setId(resultSet.getInt("d.id"));
                 department.setName(resultSet.getString("d.name"));
-            //    employee.setDepartment(resultSet.getInt("department_id"));
-              //  employee.setPosition(resultSet.getInt("position_id"));
-              //  employee.setSalary(resultSet.getBigDecimal("salary"));
+
+                employee.setDepartment(department);
+
+                position.setId(resultSet.getInt("p.id"));
+                position.setName(resultSet.getString("p.name"));
+                position.setDepartment(resultSet.getInt("department"));
+                position.setMinSalary(resultSet.getBigDecimal("p.minSalary"));
+                position.setMaxSalary(resultSet.getBigDecimal("p.maxSalary"));
+
+                employee.setPosition(position);
+
                 employees.add(employee);
 
                 System.out.println(employee.toString());
                 System.out.println(department.toString());
-
             }
         }
         return employees;
@@ -269,16 +314,37 @@ public class DepartmentDBManager {
              Statement st = c.createStatement()
         ) {
             ResultSet resultSet = st
-                    .executeQuery("SELECT * FROM employee WHERE id =" + employeeId);
+                    .executeQuery("SELECT e.id, e.name, e.birthday, e.passportNumber, e.salary,e.position_id, d.id, d.name, p.id, p.name, p.department, p.minSalary, p.maxSalary FROM employee e INNER JOIN department d ON e.department_id=d.id INNER JOIN position p ON e.position_id=p.id WHERE e.id = "+employeeId);
+            //  .executeQuery("SELECT * FROM employee WHERE id =" + employeeId);
 
             while (resultSet.next()) {
-                employee.setId(resultSet.getInt("id"));
-                employee.setName(resultSet.getString("name"));
-                employee.setBirthday(resultSet.getDate("birthday"));
-                employee.setPassportNumber(resultSet.getString("passportNumber"));
-                employee.setDepartment(resultSet.getInt("department_id"));
-                employee.setPosition(resultSet.getInt("position_id"));
-                employee.setSalary(resultSet.getBigDecimal("salary"));
+
+                Department department = new Department();
+                Position position = new Position();
+
+                employee.setId(resultSet.getInt("e.id"));
+                employee.setName(resultSet.getString("e.name"));
+                employee.setBirthday(resultSet.getDate("e.birthday"));
+                employee.setPassportNumber(resultSet.getString("e.passportNumber"));
+
+                department.setId(resultSet.getInt("d.id"));
+                department.setName(resultSet.getString("d.name"));
+
+                employee.setDepartment(department);
+
+                position.setId(resultSet.getInt("p.id"));
+                position.setName(resultSet.getString("p.name"));
+                position.setDepartment(resultSet.getInt("department"));
+                position.setMinSalary(resultSet.getBigDecimal("p.minSalary"));
+                position.setMaxSalary(resultSet.getBigDecimal("p.maxSalary"));
+
+                employee.setPosition(position);
+
+
+
+                System.out.println(employee.toString());
+                System.out.println(department.toString());
+                System.out.println();
             }
         }
         return employee;
